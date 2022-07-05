@@ -247,6 +247,10 @@ GROUP
     : G R O U P
     ;
 
+HAVING
+    : H A V I N G
+    ;
+
 INDEX
     : I N D E X
     ;

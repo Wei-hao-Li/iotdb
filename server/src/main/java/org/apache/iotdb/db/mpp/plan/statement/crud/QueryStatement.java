@@ -32,6 +32,7 @@ import org.apache.iotdb.db.mpp.plan.statement.component.FilterNullComponent;
 import org.apache.iotdb.db.mpp.plan.statement.component.FromComponent;
 import org.apache.iotdb.db.mpp.plan.statement.component.GroupByLevelComponent;
 import org.apache.iotdb.db.mpp.plan.statement.component.GroupByTimeComponent;
+import org.apache.iotdb.db.mpp.plan.statement.component.HavingCondition;
 import org.apache.iotdb.db.mpp.plan.statement.component.OrderBy;
 import org.apache.iotdb.db.mpp.plan.statement.component.ResultColumn;
 import org.apache.iotdb.db.mpp.plan.statement.component.ResultSetFormat;
@@ -65,6 +66,7 @@ public class QueryStatement extends Statement {
   protected SelectComponent selectComponent;
   protected FromComponent fromComponent;
   protected WhereCondition whereCondition;
+  protected HavingCondition havingCondition;
 
   // row limit and offset for result set. The default value is 0, which means no limit
   protected int rowLimit = 0;
@@ -165,6 +167,14 @@ public class QueryStatement extends Statement {
 
   public FilterNullComponent getFilterNullComponent() {
     return filterNullComponent;
+  }
+
+  public HavingCondition getHavingCondition() {
+    return havingCondition;
+  }
+
+  public void setHavingCondition(HavingCondition havingCondition) {
+    this.havingCondition = havingCondition;
   }
 
   public void setFilterNullComponent(FilterNullComponent filterNullComponent) {

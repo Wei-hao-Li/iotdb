@@ -66,6 +66,7 @@ import org.apache.iotdb.db.mpp.plan.statement.component.FilterNullPolicy;
 import org.apache.iotdb.db.mpp.plan.statement.component.FromComponent;
 import org.apache.iotdb.db.mpp.plan.statement.component.GroupByLevelComponent;
 import org.apache.iotdb.db.mpp.plan.statement.component.GroupByTimeComponent;
+import org.apache.iotdb.db.mpp.plan.statement.component.HavingCondition;
 import org.apache.iotdb.db.mpp.plan.statement.component.OrderBy;
 import org.apache.iotdb.db.mpp.plan.statement.component.ResultColumn;
 import org.apache.iotdb.db.mpp.plan.statement.component.ResultSetFormat;
@@ -791,6 +792,11 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
       parseOrderByTimeClause(ctx.orderByTimeClause());
     }
 
+    // parse Having
+    if (ctx.havingClause() != null) {
+      parseHavingClause(ctx.havingClause());
+    }
+
     // parse limit & offset
     if (ctx.specialLimit() != null) {
       return visit(ctx.specialLimit());
@@ -807,6 +813,11 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     // parse order by time
     if (ctx.orderByTimeClause() != null) {
       parseOrderByTimeClause(ctx.orderByTimeClause());
+    }
+
+    // parse Having
+    if (ctx.havingClause() != null) {
+      parseHavingClause(ctx.havingClause());
     }
 
     // parse limit & offset
@@ -937,6 +948,11 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     // parse order by time
     if (ctx.orderByTimeClause() != null) {
       parseOrderByTimeClause(ctx.orderByTimeClause());
+    }
+
+    // parse Having
+    if (ctx.havingClause() != null) {
+      parseHavingClause(ctx.havingClause());
     }
 
     // parse limit & offset
@@ -1189,6 +1205,14 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     }
 
     queryStatement.setFilterNullComponent(filterNullComponent);
+  }
+
+  // HAVING Clause
+
+  public void parseHavingClause(IoTDBSqlParser.HavingClauseContext ctx) {
+    Expression predicate =
+        parseExpression(ctx.expression(), ctx.expression().OPERATOR_NOT() == null);
+    queryStatement.setHavingCondition(new HavingCondition(predicate));
   }
 
   // ORDER BY TIME Clause
