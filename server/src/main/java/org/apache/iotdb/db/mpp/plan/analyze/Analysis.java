@@ -78,6 +78,8 @@ public class Analysis {
 
   private Expression queryFilter;
 
+  private Expression groupByFilter;
+
   // map from grouped path name to list of input aggregation in `GROUP BY LEVEL` clause
   private Map<Expression, Set<Expression>> groupByLevelExpressions;
 
@@ -117,6 +119,9 @@ public class Analysis {
 
   // indicate is there a value filter
   private boolean hasValueFilter = false;
+
+  // indicate is there a groupBy filter
+  private boolean hasGroupByFilter = false;
 
   // true if nested expressions and UDFs exist in aggregation function
   private boolean isHasRawDataInputAggregation;
@@ -355,6 +360,14 @@ public class Analysis {
 
   public Map<String, Set<Expression>> getDeviceToAggregationTransformExpressions() {
     return deviceToAggregationTransformExpressions;
+  }
+
+  public Expression getGroupByFilter() {
+    return groupByFilter;
+  }
+
+  public void setGroupByFilter(Expression groupByFilter) {
+    this.groupByFilter = groupByFilter;
   }
 
   public void setDeviceToAggregationTransformExpressions(

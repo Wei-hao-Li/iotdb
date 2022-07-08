@@ -78,6 +78,39 @@ import static org.apache.iotdb.db.mpp.plan.analyze.ExpressionUtils.reconstructUn
 public class ExpressionAnalyzer {
 
   /**
+   * Check if having expression are composed of aggregate functions or constants.
+   *
+   * @param predicate
+   */
+  public static void checkHavingSemantic(Expression predicate) {
+    if (predicate instanceof TernaryExpression) {
+      checkHavingSemantic(((TernaryExpression) predicate).getFirstExpression());
+      checkHavingSemantic(((TernaryExpression) predicate).getSecondExpression());
+      checkHavingSemantic(((TernaryExpression) predicate).getThirdExpression());
+    } else if (predicate instanceof BinaryExpression) {
+      checkHavingSemantic(((BinaryExpression) predicate).getLeftExpression());
+      checkHavingSemantic(((BinaryExpression) predicate).getRightExpression());
+    } else if (predicate instanceof UnaryExpression) {
+      checkHavingSemantic(((UnaryExpression) predicate).getExpression());
+    } else if (predicate instanceof FunctionExpression) {
+      if (predicate.isBuiltInAggregationFunctionExpression()) {
+        return;
+      }
+      for (Expression expression : predicate.getExpressions()) {
+        checkHavingSemantic(expression);
+      }
+    } else if (predicate instanceof TimeSeriesOperand) {
+      throw new SemanticException(
+          "time series must to be used in aggregate function in HAVING clause");
+    } else if (predicate instanceof TimestampOperand || predicate instanceof ConstantOperand) {
+      // do nothing
+    } else {
+      throw new IllegalArgumentException(
+          "unsupported expression type: " + predicate.getExpressionType());
+    }
+  }
+
+  /**
    * Check if all suffix paths in expression are measurements or one-level wildcards in ALIGN BY
    * DEVICE query. If not, throw a {@link SemanticException}.
    *

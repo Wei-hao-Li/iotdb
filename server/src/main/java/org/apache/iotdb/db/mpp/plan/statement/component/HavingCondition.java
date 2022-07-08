@@ -20,8 +20,9 @@
 package org.apache.iotdb.db.mpp.plan.statement.component;
 
 import org.apache.iotdb.db.mpp.plan.expression.Expression;
+import org.apache.iotdb.db.mpp.plan.statement.StatementNode;
 
-public class HavingCondition {
+public class HavingCondition extends StatementNode {
   private Expression predicate;
 
   public HavingCondition() {}

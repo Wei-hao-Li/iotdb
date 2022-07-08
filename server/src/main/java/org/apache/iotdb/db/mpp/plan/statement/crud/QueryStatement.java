@@ -41,6 +41,8 @@ import org.apache.iotdb.db.mpp.plan.statement.component.WhereCondition;
 
 import java.util.List;
 
+import static org.apache.iotdb.db.mpp.plan.analyze.ExpressionAnalyzer.checkHavingSemantic;
+
 /**
  * Base class of SELECT statement.
  *
@@ -255,6 +257,10 @@ public class QueryStatement extends Statement {
         throw new SemanticException(
             "Common queries and aggregated queries are not allowed to appear at the same time");
       }
+    }
+
+    if (getHavingCondition() != null) {
+      checkHavingSemantic(getHavingCondition().getPredicate());
     }
 
     if (isAlignByDevice()) {

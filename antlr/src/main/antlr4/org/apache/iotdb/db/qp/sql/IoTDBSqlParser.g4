@@ -380,9 +380,9 @@ intoPath
 specialClause
     : specialLimit #specialLimitStatement
     | orderByTimeClause specialLimit? #orderByTimeStatement
-    | groupByTimeClause orderByTimeClause? havingClause? specialLimit? #groupByTimeStatement
-    | groupByFillClause orderByTimeClause? havingClause? specialLimit? #groupByFillStatement
-    | groupByLevelClause orderByTimeClause? havingClause? specialLimit? #groupByLevelStatement
+    | groupByTimeClause havingClause? orderByTimeClause? specialLimit? #groupByTimeStatement
+    | groupByFillClause havingClause? orderByTimeClause? specialLimit? #groupByFillStatement
+    | groupByLevelClause havingClause? orderByTimeClause? specialLimit? #groupByLevelStatement
     | fillClause orderByTimeClause? specialLimit? #fillStatement
     ;
 
@@ -426,7 +426,7 @@ groupByFillClause
     fillClause
     ;
 
-groupByLevelClause
+ groupByLevelClause
     : GROUP BY LEVEL operator_eq INTEGER_LITERAL (COMMA INTEGER_LITERAL)* fillClause?
     ;
 
