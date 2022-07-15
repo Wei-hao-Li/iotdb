@@ -29,6 +29,16 @@ struct TDataNodeRegisterReq {
   2: optional map<string, TStorageGroupSchema> statusMap
 }
 
+struct TDataNodeRemoveReq {
+  1: required list<common.TDataNodeLocation> dataNodeLocations
+}
+
+struct TRegionMigrateResultReportReq {
+  1: required common.TConsensusGroupId regionId
+  2: required common.TSStatus migrateResult
+  3: optional map<common.TDataNodeLocation, common.TRegionMigrateFailedType> failedNodeAndReason
+}
+
 struct TDataNodeActiveReq {
   1: required common.TDataNodeInfo dataNodeInfo
 }
@@ -39,6 +49,7 @@ struct TGlobalConfig {
   3: required i32 seriesPartitionSlotNum
   4: required string seriesPartitionExecutorClass
   5: required i64 timePartitionInterval
+  6: required string readConsistencyLevel
 }
 
 struct TDataNodeRegisterResp {
@@ -48,6 +59,10 @@ struct TDataNodeRegisterResp {
   4: optional TGlobalConfig globalConfig
 }
 
+struct TDataNodeRemoveResp {
+  1: required common.TSStatus status
+  2: optional map<common.TDataNodeLocation, common.TSStatus> nodeToStatus
+}
 struct TDataNodeInfoResp {
   1: required common.TSStatus status
   // map<DataNodeId, DataNodeLocation>
@@ -212,6 +227,7 @@ struct TConfigNodeRegisterReq {
   9: required double schemaRegionPerDataNode
   10: required i32 dataReplicationFactor
   11: required double dataRegionPerProcessor
+  12: required string readConsistencyLevel
 }
 
 struct TConfigNodeRegisterResp {
@@ -242,6 +258,7 @@ struct TDropFunctionReq {
 // show regions
 struct TShowRegionReq {
   1: optional common.TConsensusGroupType consensusGroupType;
+  2: optional list<string> storageGroups
 }
 
 struct TShowRegionResp {
@@ -264,15 +281,45 @@ struct TRegionRouteMapResp {
   3: optional map<common.TConsensusGroupId, common.TRegionReplicaSet> regionRouteMap
 }
 
+
+// Template
+struct TCreateSchemaTemplateReq {
+  1: required string name
+  2: required binary serializedTemplate
+}
+
+struct TGetAllTemplatesResp {
+  1: required common.TSStatus status
+  2: optional list<binary> templateList
+}
+
+struct TGetTemplateResp {
+  1: required common.TSStatus status
+  2: optional binary template
+}
+
+struct TSetSchemaTemplateReq {
+  1: required string name
+  2: required string path
+}
+struct TGetPathsSetTemplatesResp {
+  1: required common.TSStatus status
+  2: optional list<string> pathList
+}
+
 service IConfigNodeRPCService {
 
   /* DataNode */
 
   TDataNodeRegisterResp registerDataNode(TDataNodeRegisterReq req)
 
+  TDataNodeRemoveResp removeDataNode(TDataNodeRemoveReq req)
+
   common.TSStatus activeDataNode(TDataNodeActiveReq req)
 
   TDataNodeInfoResp getDataNodeInfo(i32 dataNodeId)
+
+  common.TSStatus reportRegionMigrateResult(TRegionMigrateResultReportReq req)
 
   /* Show Cluster */
   TClusterNodeInfos getAllClusterNodeInfos()
@@ -372,6 +419,18 @@ service IConfigNodeRPCService {
   /* Show DataNodes */
 
   TShowDataNodesResp showDataNodes()
+
+   /* Template */
+
+    common.TSStatus createSchemaTemplate(TCreateSchemaTemplateReq req)
+
+    TGetAllTemplatesResp getAllTemplates()
+
+    TGetTemplateResp getTemplate(string req)
+
+    common.TSStatus setSchemaTemplate(TSetSchemaTemplateReq req)
+
+    TGetPathsSetTemplatesResp getPathsSetTemplate(string req)
 
 }
 
