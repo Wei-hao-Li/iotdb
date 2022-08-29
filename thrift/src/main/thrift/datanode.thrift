@@ -171,6 +171,11 @@ struct TDropFunctionRequest {
   1: required string udfName
 }
 
+struct TRemoveTriggerInstanceReq {
+  1: required string triggerName
+  2: bool needToDeleteJar
+}
+
 struct TInvalidatePermissionCacheReq {
   1: required string username
   2: required string roleName
@@ -345,11 +350,11 @@ service IDataNodeRPCService {
   common.TSStatus createTriggerInstance(common.TCreateTriggerReq req)
 
   /**
-   * Data node will remove the Trigger instance.
+   * Data node will remove the Trigger instance, maybe the Jar of this Trigger will be deleted.
    *
    * @param trigger name
    **/
-  common.TSStatus removeTriggerInstance(string triggerName)
+  common.TSStatus removeTriggerInstance(TRemoveTriggerInstanceReq req)
 
   /**
    * Config node will invalidate permission Info cache.

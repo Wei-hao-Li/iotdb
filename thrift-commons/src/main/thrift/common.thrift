@@ -124,6 +124,7 @@ struct TFilesResp {
 }
 
 // for Trigger
+// this request used to DataNode sends 'createTrigger' to ConfigNode & ConfigNode sends 'createTriggerInstance' to DataNodes
 struct TCreateTriggerReq {
   1: string triggerName
   2: required binary triggerInformation
