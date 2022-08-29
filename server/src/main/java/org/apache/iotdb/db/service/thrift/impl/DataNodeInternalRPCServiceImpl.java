@@ -21,6 +21,7 @@ package org.apache.iotdb.db.service.thrift.impl;
 
 import org.apache.iotdb.common.rpc.thrift.TConfigNodeLocation;
 import org.apache.iotdb.common.rpc.thrift.TConsensusGroupId;
+import org.apache.iotdb.common.rpc.thrift.TCreateTriggerReq;
 import org.apache.iotdb.common.rpc.thrift.TDataNodeLocation;
 import org.apache.iotdb.common.rpc.thrift.TEndPoint;
 import org.apache.iotdb.common.rpc.thrift.TFlushReq;
@@ -728,6 +729,16 @@ public class DataNodeInternalRPCServiceImpl implements IDataNodeRPCService.Iface
       return new TSStatus(TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode())
           .setMessage(e.getMessage());
     }
+  }
+
+  @Override
+  public TSStatus createTriggerInstance(TCreateTriggerReq req) throws TException {
+    return null;
+  }
+
+  @Override
+  public TSStatus removeTriggerInstance(String triggerName) throws TException {
+    return null;
   }
 
   @Override

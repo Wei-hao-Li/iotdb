@@ -230,6 +230,28 @@ struct TDropFunctionReq {
   1: required string udfName
 }
 
+// Trigger
+enum TTriggerState {
+  // The intermediate state of Create trigger, the trigger need to create has not yet activated on any DataNodes.
+  INACTIVE,
+  // The intermediate state of Create trigger, the trigger need to create has activated on some DataNodes.
+  PARTIAL_ACTIVE,
+  // Triggers on all DataNodes are available.
+  ACTIVE,
+  // The intermediate state of Drop trigger, the cluster is in the process of removing the trigger.
+  DROPPING
+}
+
+struct TTriggerStatesResp {
+  1: required common.TSStatus status
+  2: required map<string, TTriggerState> triggerStates
+}
+
+struct TTriggerTableResp {
+  1: required common.TSStatus status
+  2: required map<string, binary> triggerTable
+}
+
 // Show cluster
 struct TShowClusterResp {
   1: required common.TSStatus status
@@ -582,6 +604,50 @@ service IConfigNodeRPCService {
      *         EXECUTE_STATEMENT_ERROR if operations on any node failed
      */
   common.TSStatus dropFunction(TDropFunctionReq req)
+
+  // ======================================================
+  // Trigger
+  // ======================================================
+
+  /**
+     * Create a tirgger on all online DataNodes, and sync Information of it to all ConfigNodes
+     *
+     * @return SUCCESS_STATUS if the trigger was created successfully
+     *         EXECUTE_STATEMENT_ERROR if operations on any node failed
+     */
+  common.TSStatus createTrigger(common.TCreateTriggerReq req)
+
+  /**
+     * Remove a trigger on all online DataNodes and Information of it on all ConfigNodes
+     *
+     * @return SUCCESS_STATUS if the trigger was removed successfully
+     *         EXECUTE_STATEMENT_ERROR if operations on any node failed
+     */
+  common.TSStatus dropTrigger(string triggerName)
+
+  /**
+     * Get states of all triggers
+     *
+     * @return SUCCESS_STATUS get successfully
+     *         EXECUTE_STATEMENT_ERROR execute failed
+     */
+  TTriggerStatesResp showTrigger()
+
+  /**
+     * Get TriggerTable
+     *
+     * @return SUCCESS_STATUS get successfully
+     *         EXECUTE_STATEMENT_ERROR execute failed
+     */
+  TTriggerTableResp getTriggerTable()
+
+  /**
+     * Get Files
+     *
+     * @return SUCCESS_STATUS get successfully
+     *         EXECUTE_STATEMENT_ERROR execute failed
+     */
+  common.TFilesResp getFiles(list<string> existedFile)
 
   // ======================================================
   // Maintenance Tools

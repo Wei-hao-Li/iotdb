@@ -54,6 +54,8 @@ import org.apache.iotdb.confignode.rpc.thrift.TShowClusterResp;
 import org.apache.iotdb.confignode.rpc.thrift.TShowConfigNodesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TShowDataNodesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TShowStorageGroupResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerStatesResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerTableResp;
 import org.apache.iotdb.consensus.common.DataSet;
 import org.apache.iotdb.db.mpp.common.schematree.PathPatternTree;
 
@@ -113,6 +115,13 @@ public interface IManager {
    * @return UDFManager instance
    */
   UDFManager getUDFManager();
+
+  /**
+   * Get TriggerManager
+   *
+   * @return TriggerManager instance
+   */
+  TriggerManager getTriggerManager();
 
   /**
    * Get ProcedureManager
@@ -270,6 +279,18 @@ public interface IManager {
   TSStatus createFunction(String udfName, String className, List<String> uris);
 
   TSStatus dropFunction(String udfName);
+
+  /** Create trigger */
+  TSStatus createTrigger();
+
+  /** Drop trigger */
+  TSStatus dropTrigger();
+
+  /** Show trigger */
+  public TTriggerStatesResp showTrigger();
+
+  /** Get TriggerTable */
+  public TTriggerTableResp getTriggerTable();
 
   /** Merge on all DataNodes */
   TSStatus merge();

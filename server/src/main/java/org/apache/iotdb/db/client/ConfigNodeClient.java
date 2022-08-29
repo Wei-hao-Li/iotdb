@@ -20,7 +20,9 @@
 package org.apache.iotdb.db.client;
 
 import org.apache.iotdb.common.rpc.thrift.TConfigNodeLocation;
+import org.apache.iotdb.common.rpc.thrift.TCreateTriggerReq;
 import org.apache.iotdb.common.rpc.thrift.TEndPoint;
+import org.apache.iotdb.common.rpc.thrift.TFilesResp;
 import org.apache.iotdb.common.rpc.thrift.TFlushReq;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
 import org.apache.iotdb.common.rpc.thrift.TSetTTLReq;
@@ -74,6 +76,8 @@ import org.apache.iotdb.confignode.rpc.thrift.TShowRegionReq;
 import org.apache.iotdb.confignode.rpc.thrift.TShowRegionResp;
 import org.apache.iotdb.confignode.rpc.thrift.TShowStorageGroupResp;
 import org.apache.iotdb.confignode.rpc.thrift.TStorageGroupSchemaResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerStatesResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerTableResp;
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
 import org.apache.iotdb.rpc.RpcTransportFactory;
@@ -848,6 +852,31 @@ public class ConfigNodeClient
       reconnect();
     }
     throw new TException(MSG_RECONNECTION_FAIL);
+  }
+
+  @Override
+  public TSStatus createTrigger(TCreateTriggerReq req) throws TException {
+    return null;
+  }
+
+  @Override
+  public TSStatus dropTrigger(String triggerName) throws TException {
+    return null;
+  }
+
+  @Override
+  public TTriggerStatesResp showTrigger() throws TException {
+    return null;
+  }
+
+  @Override
+  public TTriggerTableResp getTriggerTable() throws TException {
+    return null;
+  }
+
+  @Override
+  public TFilesResp getFiles(List<String> existedFile) throws TException {
+    return null;
   }
 
   @Override

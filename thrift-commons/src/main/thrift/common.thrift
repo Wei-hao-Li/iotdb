@@ -111,3 +111,21 @@ struct TSetTTLReq {
   1: required list<string> storageGroupPathPattern
   2: required i64 TTL
 }
+
+// for File
+struct TFile {
+  1: required string fileName
+  2: required binary file
+}
+
+struct TFilesResp {
+  1: required TSStatus status
+  2: required list<TFile> files
+}
+
+// for Trigger
+struct TCreateTriggerReq {
+  1: string triggerName
+  2: required binary triggerInformation
+  3: optional TFile jar
+}

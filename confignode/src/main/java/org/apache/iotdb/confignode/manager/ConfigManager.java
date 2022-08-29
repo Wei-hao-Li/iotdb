@@ -71,6 +71,7 @@ import org.apache.iotdb.confignode.manager.load.LoadManager;
 import org.apache.iotdb.confignode.persistence.AuthorInfo;
 import org.apache.iotdb.confignode.persistence.NodeInfo;
 import org.apache.iotdb.confignode.persistence.ProcedureInfo;
+import org.apache.iotdb.confignode.persistence.TriggerInfo;
 import org.apache.iotdb.confignode.persistence.UDFInfo;
 import org.apache.iotdb.confignode.persistence.executor.ConfigPlanExecutor;
 import org.apache.iotdb.confignode.persistence.partition.PartitionInfo;
@@ -94,6 +95,8 @@ import org.apache.iotdb.confignode.rpc.thrift.TShowConfigNodesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TShowDataNodesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TShowStorageGroupResp;
 import org.apache.iotdb.confignode.rpc.thrift.TStorageGroupSchema;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerStatesResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerTableResp;
 import org.apache.iotdb.consensus.common.DataSet;
 import org.apache.iotdb.db.mpp.common.schematree.PathPatternTree;
 import org.apache.iotdb.rpc.RpcUtils;
@@ -146,6 +149,9 @@ public class ConfigManager implements IManager {
   /** UDF */
   private final UDFManager udfManager;
 
+  /** Manage Trigger */
+  private final TriggerManager triggerManager;
+
   public ConfigManager() throws IOException {
     // Build the persistence module
     NodeInfo nodeInfo = new NodeInfo();
@@ -154,6 +160,7 @@ public class ConfigManager implements IManager {
     AuthorInfo authorInfo = new AuthorInfo();
     ProcedureInfo procedureInfo = new ProcedureInfo();
     UDFInfo udfInfo = new UDFInfo();
+    TriggerInfo triggerInfo = new TriggerInfo();
 
     // Build state machine and executor
     ConfigPlanExecutor executor =
@@ -168,6 +175,7 @@ public class ConfigManager implements IManager {
     this.permissionManager = new PermissionManager(this, authorInfo);
     this.procedureManager = new ProcedureManager(this, procedureInfo);
     this.udfManager = new UDFManager(this, udfInfo);
+    this.triggerManager = new TriggerManager(this, triggerInfo);
     this.loadManager = new LoadManager(this);
 
     // ConsensusManager must be initialized last, as it would load states from disk and reinitialize
@@ -580,6 +588,11 @@ public class ConfigManager implements IManager {
   }
 
   @Override
+  public TriggerManager getTriggerManager() {
+    return triggerManager;
+  }
+
+  @Override
   public TSStatus operatePermission(AuthorPlan authorPlan) {
     TSStatus status = confirmLeader();
     if (status.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
@@ -724,6 +737,27 @@ public class ConfigManager implements IManager {
     return status.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()
         ? udfManager.dropFunction(udfName)
         : status;
+  }
+
+  @Override
+  public TSStatus createTrigger() {
+    return null;
+  }
+
+  @Override
+  public TSStatus dropTrigger() {
+    return null;
+  }
+
+  @Override
+  public TTriggerStatesResp showTrigger() {
+
+    return null;
+  }
+
+  @Override
+  public TTriggerTableResp getTriggerTable() {
+    return null;
   }
 
   @Override

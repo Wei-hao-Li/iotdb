@@ -19,6 +19,8 @@
 package org.apache.iotdb.confignode.service.thrift;
 
 import org.apache.iotdb.common.rpc.thrift.TConfigNodeLocation;
+import org.apache.iotdb.common.rpc.thrift.TCreateTriggerReq;
+import org.apache.iotdb.common.rpc.thrift.TFilesResp;
 import org.apache.iotdb.common.rpc.thrift.TFlushReq;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
 import org.apache.iotdb.common.rpc.thrift.TSetTTLReq;
@@ -100,6 +102,8 @@ import org.apache.iotdb.confignode.rpc.thrift.TShowRegionResp;
 import org.apache.iotdb.confignode.rpc.thrift.TShowStorageGroupResp;
 import org.apache.iotdb.confignode.rpc.thrift.TStorageGroupSchema;
 import org.apache.iotdb.confignode.rpc.thrift.TStorageGroupSchemaResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerStatesResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerTableResp;
 import org.apache.iotdb.confignode.service.ConfigNode;
 import org.apache.iotdb.consensus.common.response.ConsensusGenericResponse;
 import org.apache.iotdb.db.mpp.common.schematree.PathPatternTree;
@@ -467,6 +471,31 @@ public class ConfigNodeRPCServiceProcessor implements IConfigNodeRPCService.Ifac
   @Override
   public TSStatus dropFunction(TDropFunctionReq req) throws TException {
     return configManager.dropFunction(req.getUdfName());
+  }
+
+  @Override
+  public TSStatus createTrigger(TCreateTriggerReq req) throws TException {
+    return null;
+  }
+
+  @Override
+  public TSStatus dropTrigger(String triggerName) throws TException {
+    return null;
+  }
+
+  @Override
+  public TTriggerStatesResp showTrigger() throws TException {
+    return null;
+  }
+
+  @Override
+  public TTriggerTableResp getTriggerTable() throws TException {
+    return null;
+  }
+
+  @Override
+  public TFilesResp getFiles(List<String> existedFile) throws TException {
+    return null;
   }
 
   @Override

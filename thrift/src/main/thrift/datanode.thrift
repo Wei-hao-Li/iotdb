@@ -338,6 +338,20 @@ service IDataNodeRPCService {
   common.TSStatus dropFunction(TDropFunctionRequest req)
 
   /**
+   * Data node will create a Trigger instance.
+   *
+   * @param trigger name and information
+   **/
+  common.TSStatus createTriggerInstance(common.TCreateTriggerReq req)
+
+  /**
+   * Data node will remove the Trigger instance.
+   *
+   * @param trigger name
+   **/
+  common.TSStatus removeTriggerInstance(string triggerName)
+
+  /**
    * Config node will invalidate permission Info cache.
    *
    * @param string:username, list<string>:roleList
