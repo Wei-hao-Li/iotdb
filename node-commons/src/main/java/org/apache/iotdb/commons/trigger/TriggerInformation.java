@@ -20,11 +20,12 @@
 package org.apache.iotdb.commons.trigger;
 
 import org.apache.iotdb.common.rpc.thrift.TDataNodeLocation;
+import org.apache.iotdb.commons.path.PartialPath;
 import org.apache.iotdb.confignode.rpc.thrift.TTriggerState;
 
 /** This Class used to save the specific information of one Trigger. */
 public class TriggerInformation { // TODO Serialized
-  // private PartialPath pathPattern;
+  private PartialPath pathPattern;
   private String className;
   private String jarName;
   private TTriggerState triggerState;
@@ -36,16 +37,26 @@ public class TriggerInformation { // TODO Serialized
   private TDataNodeLocation dataNodeLocation;
 
   public TriggerInformation(
+      PartialPath pathPattern,
       String className,
       String jarName,
       TTriggerState triggerState,
       boolean isStateful,
       TDataNodeLocation dataNodeLocation) {
+    this.pathPattern = pathPattern;
     this.className = className;
     this.jarName = jarName;
     this.triggerState = triggerState;
     this.isStateful = isStateful;
     this.dataNodeLocation = dataNodeLocation;
+  }
+
+  public PartialPath getPathPattern() {
+    return pathPattern;
+  }
+
+  public void setPathPattern(PartialPath pathPattern) {
+    this.pathPattern = pathPattern;
   }
 
   public String getClassName() {
