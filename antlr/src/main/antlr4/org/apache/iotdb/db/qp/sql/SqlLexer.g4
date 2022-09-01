@@ -423,8 +423,16 @@ QUERY
     : Q U E R Y
     ;
 
+RUNNING
+    : R U N N I N G
+    ;
+
 READONLY
     : R E A D O N L Y
+    ;
+
+ERROR
+    : E R R O R
     ;
 
 REGEXP
@@ -501,6 +509,14 @@ STORAGE
 
 START
     : S T A R T
+    ;
+
+STATELESS
+    : S T A T E L E S S
+    ;
+
+STATEFUL
+    : S T A T E F U L
     ;
 
 STOP

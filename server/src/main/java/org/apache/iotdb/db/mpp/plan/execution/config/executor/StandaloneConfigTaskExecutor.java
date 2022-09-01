@@ -21,9 +21,12 @@ package org.apache.iotdb.db.mpp.plan.execution.config.executor;
 
 import org.apache.iotdb.common.rpc.thrift.TFlushReq;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
+import org.apache.iotdb.commons.cluster.NodeStatus;
 import org.apache.iotdb.commons.exception.IoTDBException;
 import org.apache.iotdb.commons.exception.MetadataException;
 import org.apache.iotdb.commons.path.PartialPath;
+import org.apache.iotdb.commons.trigger.enums.TriggerEvent;
+import org.apache.iotdb.commons.trigger.enums.TriggerType;
 import org.apache.iotdb.commons.udf.service.UDFExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFRegistrationService;
 import org.apache.iotdb.confignode.rpc.thrift.TStorageGroupInfo;
@@ -144,32 +147,12 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
       storageGroupNum =
           LocalConfigNode.getInstance()
               .getStorageGroupNum(
-                  countStorageGroupStatement.getPartialPath(),
+                  countStorageGroupStatement.getPathPattern(),
                   countStorageGroupStatement.isPrefixPath());
       // build TSBlock
       CountStorageGroupTask.buildTSBlock(storageGroupNum, future);
     } catch (MetadataException e) {
       future.setException(e);
-    }
-    return future;
-  }
-
-  @Override
-  public SettableFuture<ConfigTaskResult> createFunction(
-      String udfName, String className, List<String> uris) {
-    SettableFuture<ConfigTaskResult> future = SettableFuture.create();
-    try {
-      UDFRegistrationService.getInstance()
-          .register(udfName, className, uris, UDFExecutableManager.getInstance(), true);
-      future.set(new ConfigTaskResult(TSStatusCode.SUCCESS_STATUS));
-    } catch (Exception e) {
-      final String message =
-          String.format(
-              "Failed to create function %s(%s), URI: %s, because %s.",
-              udfName, className, uris, e.getMessage());
-      LOGGER.error(message, e);
-      future.setException(
-          new IoTDBException(message, TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode()));
     }
     return future;
   }
@@ -205,6 +188,26 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
   }
 
   @Override
+  public SettableFuture<ConfigTaskResult> createFunction(
+      String udfName, String className, List<String> uris) {
+    SettableFuture<ConfigTaskResult> future = SettableFuture.create();
+    try {
+      UDFRegistrationService.getInstance()
+          .register(udfName, className, uris, UDFExecutableManager.getInstance(), true);
+      future.set(new ConfigTaskResult(TSStatusCode.SUCCESS_STATUS));
+    } catch (Exception e) {
+      final String message =
+          String.format(
+              "Failed to create function %s(%s), URI: %s, because %s.",
+              udfName, className, uris, e.getMessage());
+      LOGGER.error(message, e);
+      future.setException(
+          new IoTDBException(message, TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode()));
+    }
+    return future;
+  }
+
+  @Override
   public SettableFuture<ConfigTaskResult> dropFunction(String udfName) {
     SettableFuture<ConfigTaskResult> future = SettableFuture.create();
     try {
@@ -213,6 +216,27 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
     } catch (Exception e) {
       final String message =
           String.format("Failed to drop function %s, because %s.", udfName, e.getMessage());
+      LOGGER.error(message, e);
+      future.setException(
+          new IoTDBException(message, TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode()));
+    }
+    return future;
+  }
+
+  @Override
+  public SettableFuture<ConfigTaskResult> createTrigger(
+      String triggerName,
+      String className,
+      TriggerEvent triggerEvent,
+      TriggerType triggerType,
+      PartialPath pathPattern) {
+    SettableFuture<ConfigTaskResult> future = SettableFuture.create();
+    try {
+      // todo: implementation
+      future.set(new ConfigTaskResult(TSStatusCode.SUCCESS_STATUS));
+    } catch (Exception e) {
+      final String message =
+          String.format("Failed to create trigger %s, because %s.", triggerName, e.getMessage());
       LOGGER.error(message, e);
       future.setException(
           new IoTDBException(message, TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode()));
@@ -234,7 +258,7 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
   }
 
   @Override
-  public SettableFuture<ConfigTaskResult> merge(boolean isCluster) {
+  public SettableFuture<ConfigTaskResult> merge(boolean onCluster) {
     SettableFuture<ConfigTaskResult> future = SettableFuture.create();
     TSStatus tsStatus = LocalConfigNode.getInstance().executeMergeOperation();
     if (tsStatus.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
@@ -246,7 +270,7 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
   }
 
   @Override
-  public SettableFuture<ConfigTaskResult> flush(TFlushReq tFlushReq, boolean isCluster) {
+  public SettableFuture<ConfigTaskResult> flush(TFlushReq tFlushReq, boolean onCluster) {
     SettableFuture<ConfigTaskResult> future = SettableFuture.create();
     TSStatus tsStatus = LocalConfigNode.getInstance().executeFlushOperation(tFlushReq);
     if (tsStatus.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
@@ -258,7 +282,7 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
   }
 
   @Override
-  public SettableFuture<ConfigTaskResult> clearCache(boolean isCluster) {
+  public SettableFuture<ConfigTaskResult> clearCache(boolean onCluster) {
     SettableFuture<ConfigTaskResult> future = SettableFuture.create();
     TSStatus tsStatus = LocalConfigNode.getInstance().executeClearCacheOperation();
     if (tsStatus.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
@@ -270,9 +294,21 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
   }
 
   @Override
-  public SettableFuture<ConfigTaskResult> loadConfiguration(boolean isCluster) {
+  public SettableFuture<ConfigTaskResult> loadConfiguration(boolean onCluster) {
     SettableFuture<ConfigTaskResult> future = SettableFuture.create();
     TSStatus tsStatus = LocalConfigNode.getInstance().executeLoadConfigurationOperation();
+    if (tsStatus.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
+      future.set(new ConfigTaskResult(TSStatusCode.SUCCESS_STATUS));
+    } else {
+      future.setException(new StatementExecutionException(tsStatus));
+    }
+    return future;
+  }
+
+  @Override
+  public SettableFuture<ConfigTaskResult> setSystemStatus(boolean onCluster, NodeStatus status) {
+    SettableFuture<ConfigTaskResult> future = SettableFuture.create();
+    TSStatus tsStatus = LocalConfigNode.getInstance().executeSetSystemStatus(status);
     if (tsStatus.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
       future.set(new ConfigTaskResult(TSStatusCode.SUCCESS_STATUS));
     } else {

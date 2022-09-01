@@ -39,6 +39,7 @@ import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateAlignedTimeSeriesSt
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateFunctionStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateMultiTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTimeSeriesStatement;
+import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTriggerStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteStorageGroupStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DropFunctionStatement;
@@ -69,6 +70,7 @@ import org.apache.iotdb.db.mpp.plan.statement.sys.ExplainStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.FlushStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.LoadConfigurationStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.MergeStatement;
+import org.apache.iotdb.db.mpp.plan.statement.sys.SetSystemStatusStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.ShowVersionStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.sync.CreatePipeSinkStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.sync.CreatePipeStatement;
@@ -171,6 +173,11 @@ public abstract class StatementVisitor<R, C> {
 
   public R visitShowFunctions(ShowFunctionsStatement showFunctionsStatement, C context) {
     return visitStatement(showFunctionsStatement, context);
+  }
+
+  // Trigger
+  public R visitCreateTrigger(CreateTriggerStatement createTriggerStatement, C context) {
+    return visitStatement(createTriggerStatement, context);
   }
 
   /** Data Manipulation Language (DML) */
@@ -280,6 +287,10 @@ public abstract class StatementVisitor<R, C> {
   public R visitLoadConfiguration(
       LoadConfigurationStatement loadConfigurationStatement, C context) {
     return visitStatement(loadConfigurationStatement, context);
+  }
+
+  public R visitSetSystemStatus(SetSystemStatusStatement setSystemStatusStatement, C context) {
+    return visitStatement(setSystemStatusStatement, context);
   }
 
   public R visitShowRegion(ShowRegionStatement showRegionStatement, C context) {

@@ -671,22 +671,6 @@ public class ConfigNodeClient
   }
 
   @Override
-  public TSStatus createFunction(TCreateFunctionReq req) throws TException {
-    for (int i = 0; i < RETRY_NUM; i++) {
-      try {
-        TSStatus status = client.createFunction(req);
-        if (!updateConfigNodeLeader(status)) {
-          return status;
-        }
-      } catch (TException e) {
-        configLeader = null;
-      }
-      reconnect();
-    }
-    throw new TException(MSG_RECONNECTION_FAIL);
-  }
-
-  @Override
   public TSStatus merge() throws TException {
     for (int i = 0; i < RETRY_NUM; i++) {
       try {
@@ -739,6 +723,22 @@ public class ConfigNodeClient
     for (int i = 0; i < RETRY_NUM; i++) {
       try {
         TSStatus status = client.loadConfiguration();
+        if (!updateConfigNodeLeader(status)) {
+          return status;
+        }
+      } catch (TException e) {
+        configLeader = null;
+      }
+      reconnect();
+    }
+    throw new TException(MSG_RECONNECTION_FAIL);
+  }
+
+  @Override
+  public TSStatus setSystemStatus(String systemStatus) throws TException {
+    for (int i = 0; i < RETRY_NUM; i++) {
+      try {
+        TSStatus status = client.setSystemStatus(systemStatus);
         if (!updateConfigNodeLeader(status)) {
           return status;
         }
@@ -839,6 +839,22 @@ public class ConfigNodeClient
   }
 
   @Override
+  public TSStatus createFunction(TCreateFunctionReq req) throws TException {
+    for (int i = 0; i < RETRY_NUM; i++) {
+      try {
+        TSStatus status = client.createFunction(req);
+        if (!updateConfigNodeLeader(status)) {
+          return status;
+        }
+      } catch (TException e) {
+        configLeader = null;
+      }
+      reconnect();
+    }
+    throw new TException(MSG_RECONNECTION_FAIL);
+  }
+
+  @Override
   public TSStatus dropFunction(TDropFunctionReq req) throws TException {
     for (int i = 0; i < RETRY_NUM; i++) {
       try {
@@ -856,7 +872,18 @@ public class ConfigNodeClient
 
   @Override
   public TSStatus createTrigger(TCreateTriggerReq req) throws TException {
-    return null;
+    for (int i = 0; i < RETRY_NUM; i++) {
+      try {
+        TSStatus status = client.createTrigger(req);
+        if (!updateConfigNodeLeader(status)) {
+          return status;
+        }
+      } catch (TException e) {
+        configLeader = null;
+      }
+      reconnect();
+    }
+    throw new TException(MSG_RECONNECTION_FAIL);
   }
 
   @Override

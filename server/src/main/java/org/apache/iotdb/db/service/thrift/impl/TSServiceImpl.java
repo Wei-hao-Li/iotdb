@@ -28,6 +28,7 @@ import org.apache.iotdb.commons.exception.IoTDBException;
 import org.apache.iotdb.commons.exception.MetadataException;
 import org.apache.iotdb.commons.path.PartialPath;
 import org.apache.iotdb.commons.utils.PathUtils;
+import org.apache.iotdb.db.auth.AuthorityChecker;
 import org.apache.iotdb.db.auth.AuthorizerManager;
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
@@ -773,6 +774,10 @@ public class TSServiceImpl implements IClientRPCServiceWithHandler {
 
   private TSExecuteStatementResp submitQueryTask(
       PhysicalPlan physicalPlan, long startTime, TSExecuteStatementReq req) throws Exception {
+    TSStatus status = SESSION_MANAGER.checkAuthority(physicalPlan, req.getSessionId());
+    if (status != null) {
+      return new TSExecuteStatementResp(status);
+    }
     QueryTask queryTask =
         new QueryTask(
             physicalPlan,
@@ -806,7 +811,9 @@ public class TSServiceImpl implements IClientRPCServiceWithHandler {
       return RpcUtils.getTSExecuteStatementResp(
           RpcUtils.getStatus(
               TSStatusCode.NO_PERMISSION_ERROR,
-              "No permissions for this operation " + plan.getOperatorType()));
+              "No permissions for this operation, please add privilege "
+                  + OperatorType.values()[
+                      AuthorityChecker.translateToPermissionId(plan.getOperatorType())]));
     }
 
     long queryId = context.getQueryId();

@@ -174,7 +174,7 @@ struct TDropFunctionRequest {
 struct TCreateTriggerInstanceReq {
   1: required binary triggerInformation
   // the name of this jar we can get from triggerInformation, so we needn't use common.TFile
-  2: optional binary jar
+  2: optional binary jarFile
   // to indicate the stateful trigger instance whether need to be created
   3: bool needToCreateInstance
 }
@@ -351,16 +351,16 @@ service IDataNodeRPCService {
   common.TSStatus dropFunction(TDropFunctionRequest req)
 
   /**
-   * Data node will create a Trigger instance, then add information of it into Trigger Table.
+   * Config node will create a trigger instance on data node.
    *
-   * @param trigger name and information
+   * @param TriggerInformation, jar file.
    **/
   common.TSStatus createTriggerInstance(TCreateTriggerInstanceReq req)
 
   /**
    * Data node will remove the Trigger instance, maybe the Jar of this Trigger will be deleted, then delete information of it from Trigger Table.
    *
-   * @param trigger name
+   * @param triggerName,needToDeleteJar
    **/
   common.TSStatus removeTriggerInstance(TRemoveTriggerInstanceReq req)
 
@@ -380,6 +380,8 @@ service IDataNodeRPCService {
   common.TSStatus clearCache()
 
   common.TSStatus loadConfiguration()
+
+  common.TSStatus setSystemStatus(string status)
 
   /**
    * Config node will Set the TTL for the storage group on a list of data nodes.

@@ -21,9 +21,12 @@ package org.apache.iotdb.db.mpp.plan.parser;
 
 import org.apache.iotdb.common.rpc.thrift.TConsensusGroupType;
 import org.apache.iotdb.commons.auth.entity.PrivilegeType;
+import org.apache.iotdb.commons.cluster.NodeStatus;
 import org.apache.iotdb.commons.conf.IoTDBConstant;
 import org.apache.iotdb.commons.exception.IllegalPathException;
 import org.apache.iotdb.commons.path.PartialPath;
+import org.apache.iotdb.commons.trigger.enums.TriggerEvent;
+import org.apache.iotdb.commons.trigger.enums.TriggerType;
 import org.apache.iotdb.commons.utils.PathUtils;
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
@@ -93,6 +96,7 @@ import org.apache.iotdb.db.mpp.plan.statement.metadata.CountTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateAlignedTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateFunctionStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTimeSeriesStatement;
+import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTriggerStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteStorageGroupStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DropFunctionStatement;
@@ -123,6 +127,7 @@ import org.apache.iotdb.db.mpp.plan.statement.sys.ExplainStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.FlushStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.LoadConfigurationStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.MergeStatement;
+import org.apache.iotdb.db.mpp.plan.statement.sys.SetSystemStatusStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.ShowVersionStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.sync.CreatePipeSinkStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.sync.CreatePipeStatement;
@@ -711,6 +716,35 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
   @Override
   public Statement visitShowFunctions(ShowFunctionsContext ctx) {
     return new ShowFunctionsStatement();
+  }
+
+  // Create Trigger =====================================================================
+  @Override
+  public Statement visitCreateTrigger(IoTDBSqlParser.CreateTriggerContext ctx) {
+    if (ctx.triggerEventClause().DELETE() != null) {
+      throw new SemanticException("Trigger does not support DELETE as TRIGGER_EVENT for now.");
+    }
+    if (ctx.triggerType() == null) {
+      throw new SemanticException("Please specify trigger type: STATELESS or STATEFUL.");
+    }
+    Map<String, String> attributes = new HashMap<>();
+    if (ctx.triggerAttributeClause() != null) {
+      for (IoTDBSqlParser.TriggerAttributeContext triggerAttributeContext :
+          ctx.triggerAttributeClause().triggerAttribute()) {
+        attributes.put(
+            parseAttributeKey(triggerAttributeContext.key),
+            parseAttributeValue(triggerAttributeContext.value));
+      }
+    }
+    return new CreateTriggerStatement(
+        parseIdentifier(ctx.triggerName.getText()),
+        parseStringLiteral(ctx.className.getText()),
+        ctx.triggerEventClause().BEFORE() != null
+            ? TriggerEvent.BEFORE_INSERT
+            : TriggerEvent.AFTER_INSERT,
+        ctx.triggerType().STATELESS() != null ? TriggerType.STATELESS : TriggerType.STATEFUL,
+        parsePrefixPath(ctx.prefixPath()),
+        attributes);
   }
 
   // Show Child Paths =====================================================================
@@ -1673,7 +1707,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
   @Override
   public Statement visitGrantRoleToUser(IoTDBSqlParser.GrantRoleToUserContext ctx) {
     AuthorStatement authorStatement =
-        new AuthorStatement(AuthorOperator.AuthorType.GRANT_ROLE_TO_USER);
+        new AuthorStatement(AuthorOperator.AuthorType.GRANT_USER_ROLE);
     authorStatement.setRoleName(parseIdentifier(ctx.roleName.getText()));
     authorStatement.setUserName(parseIdentifier(ctx.userName.getText()));
     return authorStatement;
@@ -1746,7 +1780,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
   @Override
   public Statement visitRevokeRoleFromUser(IoTDBSqlParser.RevokeRoleFromUserContext ctx) {
     AuthorStatement authorStatement =
-        new AuthorStatement(AuthorOperator.AuthorType.REVOKE_ROLE_FROM_USER);
+        new AuthorStatement(AuthorOperator.AuthorType.REVOKE_USER_ROLE);
     authorStatement.setRoleName(parseIdentifier(ctx.roleName.getText()));
     authorStatement.setUserName(parseIdentifier(ctx.userName.getText()));
     return authorStatement;
@@ -2354,11 +2388,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     if (ctx.CLUSTER() != null && !IoTDBDescriptor.getInstance().getConfig().isClusterMode()) {
       throw new SemanticException("MERGE ON CLUSTER is not supported in standalone mode");
     }
-    if (ctx.LOCAL() != null) {
-      mergeStatement.setCluster(false);
-    } else {
-      mergeStatement.setCluster(true);
-    }
+    mergeStatement.setOnCluster(ctx.LOCAL() == null);
     return mergeStatement;
   }
 
@@ -2368,11 +2398,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     if (ctx.CLUSTER() != null && !IoTDBDescriptor.getInstance().getConfig().isClusterMode()) {
       throw new SemanticException("FULL MERGE ON CLUSTER is not supported in standalone mode");
     }
-    if (ctx.LOCAL() != null) {
-      mergeStatement.setCluster(false);
-    } else {
-      mergeStatement.setCluster(true);
-    }
+    mergeStatement.setOnCluster(ctx.LOCAL() == null);
     return mergeStatement;
   }
 
@@ -2388,11 +2414,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     if (ctx.CLUSTER() != null && !IoTDBDescriptor.getInstance().getConfig().isClusterMode()) {
       throw new SemanticException("FLUSH ON CLUSTER is not supported in standalone mode");
     }
-    if (ctx.LOCAL() != null) {
-      flushStatement.setCluster(false);
-    } else {
-      flushStatement.setCluster(true);
-    }
+    flushStatement.setOnCluster(ctx.LOCAL() == null);
     if (ctx.prefixPath(0) != null) {
       storageGroups = new ArrayList<>();
       for (IoTDBSqlParser.PrefixPathContext prefixPathContext : ctx.prefixPath()) {
@@ -2411,11 +2433,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     if (ctx.CLUSTER() != null && !IoTDBDescriptor.getInstance().getConfig().isClusterMode()) {
       throw new SemanticException("CLEAR CACHE ON CLUSTER is not supported in standalone mode");
     }
-    if (ctx.LOCAL() != null) {
-      clearCacheStatement.setCluster(false);
-    } else {
-      clearCacheStatement.setCluster(true);
-    }
+    clearCacheStatement.setOnCluster(ctx.LOCAL() == null);
     return clearCacheStatement;
   }
 
@@ -2429,12 +2447,30 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
       throw new SemanticException(
           "LOAD CONFIGURATION ON CLUSTER is not supported in standalone mode");
     }
-    if (ctx.LOCAL() != null) {
-      loadConfigurationStatement.setCluster(false);
-    } else {
-      loadConfigurationStatement.setCluster(true);
-    }
+    loadConfigurationStatement.setOnCluster(ctx.LOCAL() == null);
     return loadConfigurationStatement;
+  }
+
+  // Set System Status
+
+  @Override
+  public Statement visitSetSystemStatus(IoTDBSqlParser.SetSystemStatusContext ctx) {
+    SetSystemStatusStatement setSystemStatusStatement = new SetSystemStatusStatement();
+    if (ctx.CLUSTER() != null && !IoTDBDescriptor.getInstance().getConfig().isClusterMode()) {
+      throw new SemanticException(
+          "SET SYSTEM STATUS ON CLUSTER is not supported in standalone mode");
+    }
+    setSystemStatusStatement.setOnCluster(ctx.LOCAL() == null);
+    if (ctx.RUNNING() != null) {
+      setSystemStatusStatement.setStatus(NodeStatus.Running);
+    } else if (ctx.READONLY() != null) {
+      setSystemStatusStatement.setStatus(NodeStatus.ReadOnly);
+    } else if (ctx.ERROR() != null) {
+      setSystemStatusStatement.setStatus(NodeStatus.Error);
+    } else {
+      throw new RuntimeException("Unknown system status in set system command.");
+    }
+    return setSystemStatusStatement;
   }
 
   // show region

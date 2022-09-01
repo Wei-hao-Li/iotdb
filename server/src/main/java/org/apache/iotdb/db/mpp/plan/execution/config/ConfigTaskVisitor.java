@@ -21,6 +21,7 @@ package org.apache.iotdb.db.mpp.plan.execution.config;
 
 import org.apache.iotdb.db.mpp.plan.execution.config.metadata.CountStorageGroupTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.metadata.CreateFunctionTask;
+import org.apache.iotdb.db.mpp.plan.execution.config.metadata.CreateTriggerTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.metadata.DeleteStorageGroupTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.metadata.DropFunctionTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.metadata.SetStorageGroupTask;
@@ -43,6 +44,7 @@ import org.apache.iotdb.db.mpp.plan.execution.config.sys.ClearCacheTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.sys.FlushTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.sys.LoadConfigurationTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.sys.MergeTask;
+import org.apache.iotdb.db.mpp.plan.execution.config.sys.SetSystemStatusTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.sys.sync.CreatePipeSinkTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.sys.sync.CreatePipeTask;
 import org.apache.iotdb.db.mpp.plan.execution.config.sys.sync.DropPipeSinkTask;
@@ -56,6 +58,7 @@ import org.apache.iotdb.db.mpp.plan.statement.StatementNode;
 import org.apache.iotdb.db.mpp.plan.statement.StatementVisitor;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CountStorageGroupStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateFunctionStatement;
+import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTriggerStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteStorageGroupStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DropFunctionStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.SetStorageGroupStatement;
@@ -78,6 +81,7 @@ import org.apache.iotdb.db.mpp.plan.statement.sys.ClearCacheStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.FlushStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.LoadConfigurationStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.MergeStatement;
+import org.apache.iotdb.db.mpp.plan.statement.sys.SetSystemStatusStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.sync.CreatePipeSinkStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.sync.CreatePipeStatement;
 import org.apache.iotdb.db.mpp.plan.statement.sys.sync.DropPipeSinkStatement;
@@ -152,12 +156,6 @@ public class ConfigTaskVisitor
   }
 
   @Override
-  public IConfigTask visitCreateFunction(
-      CreateFunctionStatement createFunctionStatement, TaskContext context) {
-    return new CreateFunctionTask(createFunctionStatement);
-  }
-
-  @Override
   public IConfigTask visitMerge(MergeStatement mergeStatement, TaskContext context) {
     return new MergeTask(mergeStatement);
   }
@@ -179,9 +177,26 @@ public class ConfigTaskVisitor
   }
 
   @Override
+  public IConfigTask visitSetSystemStatus(
+      SetSystemStatusStatement setSystemStatusStatement, TaskContext context) {
+    return new SetSystemStatusTask(setSystemStatusStatement);
+  }
+
+  @Override
+  public IConfigTask visitCreateFunction(
+      CreateFunctionStatement createFunctionStatement, TaskContext context) {
+    return new CreateFunctionTask(createFunctionStatement);
+  }
+
+  @Override
   public IConfigTask visitDropFunction(
       DropFunctionStatement dropFunctionStatement, TaskContext context) {
     return new DropFunctionTask(dropFunctionStatement);
+  }
+
+  public IConfigTask visitCreateTrigger(
+      CreateTriggerStatement createTriggerStatement, TaskContext context) {
+    return new CreateTriggerTask(createTriggerStatement);
   }
 
   @Override

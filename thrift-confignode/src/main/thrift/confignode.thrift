@@ -192,7 +192,7 @@ struct TLoginReq {
 }
 
 struct TCheckUserPrivilegesReq {
-  1: required string username;
+  1: required string username
   2: required list<string> paths
   3: required i32 permission
 }
@@ -287,6 +287,7 @@ struct TConfigNodeInfo {
   2: required string status
   3: required string internalAddress
   4: required i32 internalPort
+  5: required string roleType
 }
 
 struct TShowConfigNodesResp {
@@ -615,16 +616,18 @@ service IConfigNodeRPCService {
   // Trigger
   // ======================================================
 
-  /**
-     * Create a tirgger on all online DataNodes, and sync Information of it to all ConfigNodes
-     *
-     * @return SUCCESS_STATUS if the trigger was created successfully
-     *         EXECUTE_STATEMENT_ERROR if operations on any node failed
-     */
+   /**
+      * Create a statless trigger on all online DataNodes or Create a stateful trigger on a specific DataNode
+      * and sync Information of it to all ConfigNodes
+      *
+      * @return SUCCESS_STATUS if the trigger was created successfully
+      *         EXECUTE_STATEMENT_ERROR if operations on any node failed
+      */
   common.TSStatus createTrigger(TCreateTriggerReq req)
 
   /**
-     * Remove a trigger on all online DataNodes and Information of it on all ConfigNodes
+     * Remove a statless trigger on all online DataNodes or Create a stateful trigger on a specific DataNode
+     * and sync Information of it to all ConfigNodes
      *
      * @return SUCCESS_STATUS if the trigger was removed successfully
      *         EXECUTE_STATEMENT_ERROR if operations on any node failed
@@ -670,6 +673,9 @@ service IConfigNodeRPCService {
 
   /** Load configuration on all DataNodes */
   common.TSStatus loadConfiguration()
+
+  /** Set system status on DataNodes */
+  common.TSStatus setSystemStatus(string status)
 
   // ======================================================
   // Cluster Tools
