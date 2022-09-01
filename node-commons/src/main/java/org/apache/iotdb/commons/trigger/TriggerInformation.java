@@ -21,11 +21,19 @@ package org.apache.iotdb.commons.trigger;
 
 import org.apache.iotdb.common.rpc.thrift.TDataNodeLocation;
 import org.apache.iotdb.commons.path.PartialPath;
+import org.apache.iotdb.commons.utils.ThriftCommonsSerDeUtils;
 import org.apache.iotdb.confignode.rpc.thrift.TTriggerState;
+import org.apache.iotdb.tsfile.utils.PublicBAOS;
+import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /** This Class used to save the specific information of one Trigger. */
-public class TriggerInformation { // TODO Serialized
+public class TriggerInformation {
   private PartialPath pathPattern;
+  private String triggerName;
   private String className;
   private String jarName;
   private TTriggerState triggerState;
@@ -36,19 +44,55 @@ public class TriggerInformation { // TODO Serialized
   /** only used for Stateful Trigger */
   private TDataNodeLocation dataNodeLocation;
 
+  public TriggerInformation() {};
+
   public TriggerInformation(
       PartialPath pathPattern,
+      String triggerName,
       String className,
       String jarName,
       TTriggerState triggerState,
       boolean isStateful,
       TDataNodeLocation dataNodeLocation) {
     this.pathPattern = pathPattern;
+    this.triggerName = triggerName;
     this.className = className;
     this.jarName = jarName;
     this.triggerState = triggerState;
     this.isStateful = isStateful;
     this.dataNodeLocation = dataNodeLocation;
+  }
+
+  public ByteBuffer serialize() throws IOException {
+    PublicBAOS byteArrayOutputStream = new PublicBAOS();
+    DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+    pathPattern.serialize(outputStream);
+    ReadWriteIOUtils.write(triggerName, outputStream);
+    ReadWriteIOUtils.write(className, outputStream);
+    ReadWriteIOUtils.write(jarName, outputStream);
+    ReadWriteIOUtils.write(triggerState.getValue(), outputStream);
+    ReadWriteIOUtils.write(isStateful, outputStream);
+    if (isStateful) {
+      ThriftCommonsSerDeUtils.serializeTDataNodeLocation(dataNodeLocation, outputStream);
+    }
+    return ByteBuffer.wrap(byteArrayOutputStream.getBuf(), 0, byteArrayOutputStream.size());
+  }
+
+  public static TriggerInformation deserialize(ByteBuffer byteBuffer) {
+    TriggerInformation triggerInformation = new TriggerInformation();
+    triggerInformation.pathPattern = PartialPath.deserialize(byteBuffer);
+    triggerInformation.triggerName = ReadWriteIOUtils.readString(byteBuffer);
+    triggerInformation.className = ReadWriteIOUtils.readString(byteBuffer);
+    triggerInformation.jarName = ReadWriteIOUtils.readString(byteBuffer);
+    triggerInformation.triggerState =
+        TTriggerState.findByValue(ReadWriteIOUtils.readInt(byteBuffer));
+    boolean isStateful = ReadWriteIOUtils.readBool(byteBuffer);
+    triggerInformation.isStateful = isStateful;
+    if (isStateful) {
+      triggerInformation.dataNodeLocation =
+          ThriftCommonsSerDeUtils.deserializeTDataNodeLocation(byteBuffer);
+    }
+    return triggerInformation;
   }
 
   public PartialPath getPathPattern() {
@@ -57,6 +101,14 @@ public class TriggerInformation { // TODO Serialized
 
   public void setPathPattern(PartialPath pathPattern) {
     this.pathPattern = pathPattern;
+  }
+
+  public String getTriggerName() {
+    return triggerName;
+  }
+
+  public void setTriggerName(String triggerName) {
+    this.triggerName = triggerName;
   }
 
   public String getClassName() {

@@ -19,7 +19,6 @@
 package org.apache.iotdb.confignode.service.thrift;
 
 import org.apache.iotdb.common.rpc.thrift.TConfigNodeLocation;
-import org.apache.iotdb.common.rpc.thrift.TCreateTriggerReq;
 import org.apache.iotdb.common.rpc.thrift.TFilesResp;
 import org.apache.iotdb.common.rpc.thrift.TFlushReq;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
@@ -68,6 +67,7 @@ import org.apache.iotdb.confignode.rpc.thrift.TConfigNodeRegisterReq;
 import org.apache.iotdb.confignode.rpc.thrift.TCountStorageGroupResp;
 import org.apache.iotdb.confignode.rpc.thrift.TCreateFunctionReq;
 import org.apache.iotdb.confignode.rpc.thrift.TCreateSchemaTemplateReq;
+import org.apache.iotdb.confignode.rpc.thrift.TCreateTriggerReq;
 import org.apache.iotdb.confignode.rpc.thrift.TDataNodeConfigurationResp;
 import org.apache.iotdb.confignode.rpc.thrift.TDataNodeRegisterReq;
 import org.apache.iotdb.confignode.rpc.thrift.TDataNodeRegisterResp;
@@ -475,27 +475,29 @@ public class ConfigNodeRPCServiceProcessor implements IConfigNodeRPCService.Ifac
 
   @Override
   public TSStatus createTrigger(TCreateTriggerReq req) throws TException {
-    return null;
+    /*TriggerInformation triggerInformation = TriggerInformation.deserialize(ByteBuffer.wrap(req.getTriggerInformation()));
+    return configManager.createTrigger(req.getTriggerName(), triggerInformation, req.getJar());*/
+    return configManager.createTrigger(req);
   }
 
   @Override
   public TSStatus dropTrigger(String triggerName) throws TException {
-    return null;
+    return configManager.dropTrigger(triggerName);
   }
 
   @Override
   public TTriggerStatesResp showTrigger() throws TException {
-    return null;
+    return configManager.showTrigger();
   }
 
   @Override
   public TTriggerTableResp getTriggerTable() throws TException {
-    return null;
+    return configManager.getTriggerTable();
   }
 
   @Override
-  public TFilesResp getFiles(List<String> existedFile) throws TException {
-    return null;
+  public TFilesResp getTriggerJars(List<String> existedJars) throws TException {
+    return configManager.getTriggerJars(existedJars);
   }
 
   @Override

@@ -122,11 +122,3 @@ struct TFilesResp {
   1: required TSStatus status
   2: required list<TFile> files
 }
-
-// for Trigger
-// this request used to DataNode sends 'createTrigger' to ConfigNode & ConfigNode sends 'createTriggerInstance' to DataNodes
-struct TCreateTriggerReq {
-  1: string triggerName
-  2: required binary triggerInformation
-  3: optional TFile jar
-}

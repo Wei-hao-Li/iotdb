@@ -19,7 +19,12 @@
 
 package org.apache.iotdb.confignode.manager;
 
+import org.apache.iotdb.common.rpc.thrift.TFilesResp;
+import org.apache.iotdb.common.rpc.thrift.TSStatus;
 import org.apache.iotdb.confignode.persistence.TriggerInfo;
+import org.apache.iotdb.confignode.rpc.thrift.TCreateTriggerReq;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerStatesResp;
+import org.apache.iotdb.confignode.rpc.thrift.TTriggerTableResp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,5 +38,25 @@ public class TriggerManager {
   public TriggerManager(ConfigManager configManager, TriggerInfo triggerInfo) {
     this.configManager = configManager;
     this.triggerInfo = triggerInfo;
+  }
+
+  public TSStatus createTrigger(TCreateTriggerReq req) {
+    return null;
+  }
+
+  public TSStatus dropTrigger(String triggerName) {
+    return null;
+  }
+
+  public TTriggerStatesResp showTrigger() {
+    return null;
+  }
+
+  public TTriggerTableResp getTriggerTable() {
+    return null;
+  }
+
+  public TFilesResp getTriggerJars() {
+    return null;
   }
 }

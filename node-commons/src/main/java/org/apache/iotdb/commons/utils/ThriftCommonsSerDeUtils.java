@@ -82,6 +82,15 @@ public class ThriftCommonsSerDeUtils {
   }
 
   public static void serializeTDataNodeLocation(
+      TDataNodeLocation dataNodeLocation, ByteBuffer byteBuffer) {
+    try {
+      dataNodeLocation.write(generateWriteProtocol(byteBuffer));
+    } catch (TException e) {
+      throw new ThriftSerDeException("Write TDataNodeLocation failed: ", e);
+    }
+  }
+
+  public static void serializeTDataNodeLocation(
       TDataNodeLocation dataNodeLocation, DataOutputStream stream) {
     try {
       dataNodeLocation.write(generateWriteProtocol(stream));

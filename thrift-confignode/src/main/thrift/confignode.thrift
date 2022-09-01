@@ -242,6 +242,12 @@ enum TTriggerState {
   DROPPING
 }
 
+struct TCreateTriggerReq {
+  1: required binary triggerInformation
+  2: optional binary jarFile
+  3: optional list<string> uris
+}
+
 struct TTriggerStatesResp {
   1: required common.TSStatus status
   2: required map<string, TTriggerState> triggerStates
@@ -615,7 +621,7 @@ service IConfigNodeRPCService {
      * @return SUCCESS_STATUS if the trigger was created successfully
      *         EXECUTE_STATEMENT_ERROR if operations on any node failed
      */
-  common.TSStatus createTrigger(common.TCreateTriggerReq req)
+  common.TSStatus createTrigger(TCreateTriggerReq req)
 
   /**
      * Remove a trigger on all online DataNodes and Information of it on all ConfigNodes
@@ -642,12 +648,12 @@ service IConfigNodeRPCService {
   TTriggerTableResp getTriggerTable()
 
   /**
-     * Get Files
+     * Get jars of all Trigger from ConfigNode
      *
      * @return SUCCESS_STATUS get successfully
      *         EXECUTE_STATEMENT_ERROR execute failed
      */
-  common.TFilesResp getFiles(list<string> existedFile)
+  common.TFilesResp getTriggerJars(list<string> existedJars)
 
   // ======================================================
   // Maintenance Tools

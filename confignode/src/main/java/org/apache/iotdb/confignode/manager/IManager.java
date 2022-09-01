@@ -19,6 +19,7 @@
 package org.apache.iotdb.confignode.manager;
 
 import org.apache.iotdb.common.rpc.thrift.TConfigNodeLocation;
+import org.apache.iotdb.common.rpc.thrift.TFilesResp;
 import org.apache.iotdb.common.rpc.thrift.TFlushReq;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
 import org.apache.iotdb.commons.path.PartialPath;
@@ -40,6 +41,7 @@ import org.apache.iotdb.confignode.consensus.request.write.SetTimePartitionInter
 import org.apache.iotdb.confignode.manager.load.LoadManager;
 import org.apache.iotdb.confignode.rpc.thrift.TConfigNodeRegisterReq;
 import org.apache.iotdb.confignode.rpc.thrift.TCreateSchemaTemplateReq;
+import org.apache.iotdb.confignode.rpc.thrift.TCreateTriggerReq;
 import org.apache.iotdb.confignode.rpc.thrift.TDataPartitionTableResp;
 import org.apache.iotdb.confignode.rpc.thrift.TGetAllTemplatesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TGetPathsSetTemplatesResp;
@@ -281,16 +283,19 @@ public interface IManager {
   TSStatus dropFunction(String udfName);
 
   /** Create trigger */
-  TSStatus createTrigger();
+  TSStatus createTrigger(TCreateTriggerReq req);
 
   /** Drop trigger */
-  TSStatus dropTrigger();
+  TSStatus dropTrigger(String triggerName);
 
   /** Show trigger */
   public TTriggerStatesResp showTrigger();
 
   /** Get TriggerTable */
   public TTriggerTableResp getTriggerTable();
+
+  /** Get needed Jars */
+  public TFilesResp getTriggerJars(List<String> existedJars);
 
   /** Merge on all DataNodes */
   TSStatus merge();
