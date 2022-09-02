@@ -43,7 +43,7 @@ public class TriggerInfo implements SnapshotProcessor {
   private final TriggerTable triggerTable;
   private final Map<String, AtomicInteger> jarReferenceTable;
 
-  public TriggerInfo () {
+  public TriggerInfo() {
     triggerTable = new TriggerTable();
     jarReferenceTable = new ConcurrentHashMap<>();
   }

@@ -258,8 +258,7 @@ public class ClusterConfigTaskExecutor implements IConfigTaskExecutor {
     try (ConfigNodeClient client =
         CONFIG_NODE_CLIENT_MANAGER.borrowClient(ConfigNodeInfo.partitionRegionId)) {
       // todo : createTriggerReq
-      final TSStatus executionStatus =
-          client.createTrigger(new TCreateTriggerReq(triggerName, null, null));
+      final TSStatus executionStatus = client.createTrigger(new TCreateTriggerReq());
 
       if (TSStatusCode.SUCCESS_STATUS.getStatusCode() != executionStatus.getCode()) {
         LOGGER.error(

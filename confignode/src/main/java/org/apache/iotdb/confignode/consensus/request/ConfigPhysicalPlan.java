@@ -56,8 +56,10 @@ import org.apache.iotdb.confignode.consensus.request.write.UpdateProcedurePlan;
 import org.apache.iotdb.confignode.consensus.request.write.UpdateRegionLocationPlan;
 import org.apache.iotdb.confignode.consensus.request.write.template.CreateSchemaTemplatePlan;
 import org.apache.iotdb.confignode.consensus.request.write.template.SetSchemaTemplatePlan;
+import org.apache.iotdb.confignode.consensus.request.write.trigger.CreateTriggerPlan;
 import org.apache.iotdb.consensus.common.request.IConsensusRequest;
 import org.apache.iotdb.db.exception.runtime.SerializationRunTimeException;
+import org.apache.iotdb.db.qp.physical.sys.DropTriggerPlan;
 import org.apache.iotdb.tsfile.utils.PublicBAOS;
 
 import org.slf4j.Logger;
@@ -207,6 +209,12 @@ public abstract class ConfigPhysicalPlan implements IConsensusRequest {
         case DropFunction:
           req = new DropFunctionPlan();
           break;
+        case CreateTrigger:
+          req = new CreateTriggerPlan();
+          break;
+        /*case DropTrigger:
+          // req = new DropTriggerPlan();  //TODO
+          break;*/
         case CreateSchemaTemplate:
           req = new CreateSchemaTemplatePlan();
           break;

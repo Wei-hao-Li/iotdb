@@ -176,12 +176,12 @@ struct TCreateTriggerInstanceReq {
   // the name of this jar we can get from triggerInformation, so we needn't use common.TFile
   2: optional binary jarFile
   // to indicate the stateful trigger instance whether need to be created
-  3: bool needToCreateInstance
+  3: required bool needToCreateInstance
 }
 
 struct TRemoveTriggerInstanceReq {
   1: required string triggerName
-  2: bool needToDeleteJar
+  2: required bool needToDeleteJar
 }
 
 struct TInvalidatePermissionCacheReq {

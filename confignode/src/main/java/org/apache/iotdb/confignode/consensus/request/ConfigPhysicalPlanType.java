@@ -68,7 +68,9 @@ public enum ConfigPhysicalPlanType {
   DropFunction,
   CreateTrigger,
   DropTrigger,
+  getTriggerStates,
   getTriggerTable,
+
   GetRegionInfoList,
   GetDataNodesInfoList,
   GetNodePathsPartition,

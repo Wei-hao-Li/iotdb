@@ -106,7 +106,7 @@ public class ConfigNodeConfig {
 
   /** External lib directory for Trigger, stores user-uploaded JAR files */
   private String triggerLibDir =
-          IoTDBConstant.EXT_FOLDER_NAME + File.separator + IoTDBConstant.TRIGGER_FOLDER_NAME;
+      IoTDBConstant.EXT_FOLDER_NAME + File.separator + IoTDBConstant.TRIGGER_FOLDER_NAME;
 
   /** Time partition interval in seconds */
   private long timePartitionInterval = 86400;
