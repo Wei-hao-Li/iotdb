@@ -79,6 +79,7 @@ import org.apache.iotdb.db.mpp.plan.statement.component.SortKey;
 import org.apache.iotdb.db.mpp.plan.statement.component.WhereCondition;
 import org.apache.iotdb.db.mpp.plan.statement.crud.DeleteDataStatement;
 import org.apache.iotdb.db.mpp.plan.statement.crud.InsertStatement;
+import org.apache.iotdb.db.mpp.plan.statement.crud.LoadTsFileStatement;
 import org.apache.iotdb.db.mpp.plan.statement.crud.QueryStatement;
 import org.apache.iotdb.db.mpp.plan.statement.literal.BooleanLiteral;
 import org.apache.iotdb.db.mpp.plan.statement.literal.DoubleLiteral;
@@ -528,7 +529,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     for (IoTDBSqlParser.PrefixPathContext prefixPathContext : ctx.prefixPath()) {
       partialPaths.add(parsePrefixPath(prefixPathContext));
     }
-    deleteTimeSeriesStatement.setPartialPaths(partialPaths);
+    deleteTimeSeriesStatement.setPathPatternList(partialPaths);
     return deleteTimeSeriesStatement;
   }
 
@@ -1434,6 +1435,45 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
     insertStatement.setValuesList(valuesList);
   }
 
+  // Load File
+
+  @Override
+  public Statement visitLoadFile(IoTDBSqlParser.LoadFileContext ctx) {
+    LoadTsFileStatement loadTsFileStatement =
+        new LoadTsFileStatement(parseStringLiteral(ctx.fileName.getText()));
+    if (ctx.loadFilesClause() != null) {
+      parseLoadFiles(loadTsFileStatement, ctx.loadFilesClause());
+    }
+    return loadTsFileStatement;
+  }
+
+  /**
+   * used for parsing load tsfile, context will be one of "SCHEMA, LEVEL, METADATA", and maybe
+   * followed by a recursion property statement
+   *
+   * @param loadTsFileStatement the result statement, setting by clause context
+   * @param ctx context of property statement
+   */
+  private void parseLoadFiles(
+      LoadTsFileStatement loadTsFileStatement, IoTDBSqlParser.LoadFilesClauseContext ctx) {
+    if (ctx.AUTOREGISTER() != null) {
+      loadTsFileStatement.setAutoCreateSchema(
+          Boolean.parseBoolean(ctx.BOOLEAN_LITERAL().getText()));
+    } else if (ctx.SGLEVEL() != null) {
+      loadTsFileStatement.setSgLevel(Integer.parseInt(ctx.INTEGER_LITERAL().getText()));
+    } else if (ctx.VERIFY() != null) {
+      loadTsFileStatement.setVerifySchema(Boolean.parseBoolean(ctx.BOOLEAN_LITERAL().getText()));
+    } else {
+      throw new SQLParserException(
+          String.format(
+              "load tsfile format %s error, please input AUTOREGISTER | SGLEVEL | VERIFY.",
+              ctx.getText()));
+    }
+    if (ctx.loadFilesClause() != null) {
+      parseLoadFiles(loadTsFileStatement, ctx.loadFilesClause());
+    }
+  }
+
   /** Common Parsers */
 
   // IoTDB Objects ========================================================================
@@ -2326,10 +2366,15 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
 
   private long parseTimeValue(IoTDBSqlParser.TimeValueContext ctx, long currentTime) {
     if (ctx.INTEGER_LITERAL() != null) {
-      if (ctx.MINUS() != null) {
-        return -Long.parseLong(ctx.INTEGER_LITERAL().getText());
+      try {
+        if (ctx.MINUS() != null) {
+          return -Long.parseLong(ctx.INTEGER_LITERAL().getText());
+        }
+        return Long.parseLong(ctx.INTEGER_LITERAL().getText());
+      } catch (NumberFormatException e) {
+        throw new SQLParserException(
+            String.format("Can not parse %s to long value", ctx.INTEGER_LITERAL().getText()));
       }
-      return Long.parseLong(ctx.INTEGER_LITERAL().getText());
     } else if (ctx.dateExpression() != null) {
       return parseDateExpression(ctx.dateExpression(), currentTime);
     } else {
