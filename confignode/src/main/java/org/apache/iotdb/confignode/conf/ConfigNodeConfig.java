@@ -39,7 +39,7 @@ public class ConfigNodeConfig {
   private int consensusPort = 22278;
 
   /** Used for connecting to the ConfigNodeGroup */
-  private TEndPoint targetConfigNode = new TEndPoint("0.0.0.0", 22277);
+  private TEndPoint targetConfigNode = new TEndPoint("127.0.0.1", 22277);
 
   // TODO: Read from iotdb-confignode.properties
   private int partitionRegionId = 0;
@@ -102,7 +102,7 @@ public class ConfigNodeConfig {
 
   /** External temporary lib directory for storing downloaded JAR files */
   private String temporaryLibDir =
-      IoTDBConstant.EXT_FOLDER_NAME + File.separator + IoTDBConstant.TMP_FOLDER_NAME;
+      IoTDBConstant.EXT_FOLDER_NAME + File.separator + IoTDBConstant.UDF_TMP_FOLDER_NAME;
 
   /** External lib directory for Trigger, stores user-uploaded JAR files */
   private String triggerLibDir =
@@ -134,6 +134,9 @@ public class ConfigNodeConfig {
   private String routingPolicy = RouteBalancer.LEADER_POLICY;
 
   private String readConsistencyLevel = "strong";
+
+  /** RatisConsensus protocol, Max size for a single log append request from leader */
+  private long RatisConsensusLogAppenderBufferSize = 4 * 1024 * 1024L;
 
   public ConfigNodeConfig() {
     // empty constructor
@@ -414,5 +417,13 @@ public class ConfigNodeConfig {
 
   public void setReadConsistencyLevel(String readConsistencyLevel) {
     this.readConsistencyLevel = readConsistencyLevel;
+  }
+
+  public long getRatisConsensusLogAppenderBufferSize() {
+    return RatisConsensusLogAppenderBufferSize;
+  }
+
+  public void setRatisConsensusLogAppenderBufferSize(long ratisConsensusLogAppenderBufferSize) {
+    RatisConsensusLogAppenderBufferSize = ratisConsensusLogAppenderBufferSize;
   }
 }

@@ -24,6 +24,7 @@ import org.apache.iotdb.commons.conf.IoTDBConstant;
 import org.apache.iotdb.commons.exception.BadNodeUrlException;
 import org.apache.iotdb.commons.utils.NodeUrlUtils;
 import org.apache.iotdb.confignode.rpc.thrift.TGlobalConfig;
+import org.apache.iotdb.confignode.rpc.thrift.TRatisConfig;
 import org.apache.iotdb.db.conf.directories.DirectoryManager;
 import org.apache.iotdb.db.engine.StorageEngine;
 import org.apache.iotdb.db.engine.compaction.constant.CompactionPriority;
@@ -37,7 +38,6 @@ import org.apache.iotdb.db.exception.BadNodeUrlFormatException;
 import org.apache.iotdb.db.exception.query.QueryProcessException;
 import org.apache.iotdb.db.qp.utils.DatetimeUtils;
 import org.apache.iotdb.db.service.metrics.MetricService;
-import org.apache.iotdb.db.utils.HandleSystemErrorStrategy;
 import org.apache.iotdb.db.wal.WALManager;
 import org.apache.iotdb.db.wal.utils.WALMode;
 import org.apache.iotdb.metrics.config.MetricConfigDescriptor;
@@ -239,6 +239,18 @@ public class IoTDBDescriptor {
         Integer.parseInt(
             properties.getProperty(
                 "connection_timeout_ms", String.valueOf(conf.getConnectionTimeoutInMS()))));
+
+    conf.setMaxConnectionForInternalService(
+        Integer.parseInt(
+            properties.getProperty(
+                "max_connection_for_internal_service",
+                String.valueOf(conf.getMaxConnectionForInternalService()))));
+
+    conf.setCoreConnectionForInternalService(
+        Integer.parseInt(
+            properties.getProperty(
+                "core_connection_for_internal_service",
+                String.valueOf(conf.getCoreConnectionForInternalService()))));
 
     conf.setSelectorNumOfClientManager(
         Integer.parseInt(
@@ -717,11 +729,6 @@ public class IoTDBDescriptor {
     conf.setKerberosPrincipal(
         properties.getProperty("kerberos_principal", conf.getKerberosPrincipal()));
 
-    conf.setHandleSystemErrorStrategy(
-        HandleSystemErrorStrategy.valueOf(
-            properties.getProperty(
-                "handle_system_error", String.valueOf(conf.getHandleSystemErrorStrategy()))));
-
     // the num of memtables in each storage group
     conf.setConcurrentWritingTimePartition(
         Integer.parseInt(
@@ -1015,8 +1022,6 @@ public class IoTDBDescriptor {
     conf.setWalMode(
         WALMode.valueOf((properties.getProperty("wal_mode", conf.getWalMode().toString()))));
 
-    conf.setWalDirs(properties.getProperty("wal_dirs", conf.getWalDirs()[0]).split(","));
-
     int maxWalNodesNum =
         Integer.parseInt(
             properties.getProperty(
@@ -1113,6 +1118,15 @@ public class IoTDBDescriptor {
                 Long.toString(conf.getThrottleThreshold())));
     if (throttleDownThresholdInByte > 0) {
       conf.setThrottleThreshold(throttleDownThresholdInByte);
+    }
+
+    long cacheWindowInMs =
+        Long.parseLong(
+            properties.getProperty(
+                "multi_leader_cache_window_time_in_ms",
+                Long.toString(conf.getCacheWindowTimeInMs())));
+    if (cacheWindowInMs > 0) {
+      conf.setCacheWindowTimeInMs(cacheWindowInMs);
     }
   }
 
@@ -1868,6 +1882,10 @@ public class IoTDBDescriptor {
     conf.setSeriesPartitionSlotNum(globalConfig.getSeriesPartitionSlotNum());
     conf.setPartitionInterval(globalConfig.timePartitionInterval);
     conf.setReadConsistencyLevel(globalConfig.getReadConsistencyLevel());
+  }
+
+  public void loadRatisConfig(TRatisConfig ratisConfig) {
+    conf.setRatisConsensusLogAppenderBufferSizeMax(ratisConfig.getAppenderBufferSize());
   }
 
   public void initClusterSchemaMemoryAllocate() {

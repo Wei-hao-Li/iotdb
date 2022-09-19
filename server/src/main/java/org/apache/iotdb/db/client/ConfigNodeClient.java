@@ -53,6 +53,7 @@ import org.apache.iotdb.confignode.rpc.thrift.TDataPartitionTableResp;
 import org.apache.iotdb.confignode.rpc.thrift.TDeleteStorageGroupReq;
 import org.apache.iotdb.confignode.rpc.thrift.TDeleteStorageGroupsReq;
 import org.apache.iotdb.confignode.rpc.thrift.TDropFunctionReq;
+import org.apache.iotdb.confignode.rpc.thrift.TDropTriggerReq;
 import org.apache.iotdb.confignode.rpc.thrift.TGetAllTemplatesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TGetPathsSetTemplatesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TGetTemplateResp;
@@ -163,7 +164,9 @@ public class ConfigNodeClient
           RpcTransportFactory.INSTANCE.getTransport(
               // as there is a try-catch already, we do not need to use TSocket.wrap
               endpoint.getIp(), endpoint.getPort(), (int) connectionTimeout);
-      transport.open();
+      if (!transport.isOpen()) {
+        transport.open();
+      }
       configNode = endpoint;
     } catch (TTransportException e) {
       throw new TException(e);
@@ -887,8 +890,19 @@ public class ConfigNodeClient
   }
 
   @Override
-  public TSStatus dropTrigger(String triggerName) throws TException {
-    return null;
+  public TSStatus dropTrigger(TDropTriggerReq req) throws TException {
+    for (int i = 0; i < RETRY_NUM; i++) {
+      try {
+        TSStatus status = client.dropTrigger(req);
+        if (!updateConfigNodeLeader(status)) {
+          return status;
+        }
+      } catch (TException e) {
+        configLeader = null;
+      }
+      reconnect();
+    }
+    throw new TException(MSG_RECONNECTION_FAIL);
   }
 
   @Override
