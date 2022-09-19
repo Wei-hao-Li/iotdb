@@ -45,6 +45,7 @@ import org.apache.iotdb.confignode.rpc.thrift.TCreateSchemaTemplateReq;
 import org.apache.iotdb.confignode.rpc.thrift.TCreateTriggerReq;
 import org.apache.iotdb.confignode.rpc.thrift.TDataPartitionTableResp;
 import org.apache.iotdb.confignode.rpc.thrift.TDeleteTimeSeriesReq;
+import org.apache.iotdb.confignode.rpc.thrift.TDropTriggerReq;
 import org.apache.iotdb.confignode.rpc.thrift.TGetAllTemplatesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TGetPathsSetTemplatesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TGetTemplateResp;
@@ -287,7 +288,7 @@ public interface IManager {
   TSStatus createTrigger(TCreateTriggerReq req);
 
   /** Drop trigger */
-  TSStatus dropTrigger(String triggerName);
+  TSStatus dropTrigger(TDropTriggerReq req);
 
   /** Show trigger */
   public TTriggerStatesResp showTrigger();

@@ -59,7 +59,6 @@ import org.apache.iotdb.confignode.consensus.request.write.template.SetSchemaTem
 import org.apache.iotdb.confignode.consensus.request.write.trigger.CreateTriggerPlan;
 import org.apache.iotdb.consensus.common.request.IConsensusRequest;
 import org.apache.iotdb.db.exception.runtime.SerializationRunTimeException;
-import org.apache.iotdb.db.qp.physical.sys.DropTriggerPlan;
 import org.apache.iotdb.tsfile.utils.PublicBAOS;
 
 import org.slf4j.Logger;
@@ -213,7 +212,7 @@ public abstract class ConfigPhysicalPlan implements IConsensusRequest {
         case CreateTrigger:
           req = new CreateTriggerPlan();
           break;
-        /*case DropTrigger:
+          /*case DropTrigger:
           // req = new DropTriggerPlan();  //TODO
           break;*/
         case CreateSchemaTemplate:

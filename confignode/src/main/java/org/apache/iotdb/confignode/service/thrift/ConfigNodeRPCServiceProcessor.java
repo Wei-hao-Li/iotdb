@@ -483,11 +483,6 @@ public class ConfigNodeRPCServiceProcessor implements IConfigNodeRPCService.Ifac
   }
 
   @Override
-  public TSStatus dropTrigger(String triggerName) throws TException {
-    return configManager.dropTrigger(triggerName);
-  }
-
-  @Override
   public TTriggerStatesResp showTrigger() throws TException {
     return configManager.showTrigger();
   }

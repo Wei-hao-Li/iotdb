@@ -23,6 +23,7 @@ import org.apache.iotdb.common.rpc.thrift.TFilesResp;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
 import org.apache.iotdb.confignode.persistence.TriggerInfo;
 import org.apache.iotdb.confignode.rpc.thrift.TCreateTriggerReq;
+import org.apache.iotdb.confignode.rpc.thrift.TDropTriggerReq;
 import org.apache.iotdb.confignode.rpc.thrift.TTriggerStatesResp;
 import org.apache.iotdb.confignode.rpc.thrift.TTriggerTableResp;
 
@@ -44,7 +45,7 @@ public class TriggerManager {
     return null;
   }
 
-  public TSStatus dropTrigger(String triggerName) {
+  public TSStatus dropTrigger(TDropTriggerReq req) {
     return null;
   }
 
