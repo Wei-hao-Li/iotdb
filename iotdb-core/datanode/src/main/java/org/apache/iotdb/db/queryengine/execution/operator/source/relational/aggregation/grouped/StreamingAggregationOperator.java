@@ -127,10 +127,6 @@ public class StreamingAggregationOperator extends AbstractOperator {
       }
 
       processInput(block);
-
-      if (outputs.isEmpty()) {
-        return null;
-      }
     } else {
       // last evaluate
       if (currentGroup != null) {
@@ -139,7 +135,10 @@ public class StreamingAggregationOperator extends AbstractOperator {
       }
       finished = true;
     }
-    checkState(!outputs.isEmpty(), "outputs should always not be empty here");
+
+    if (outputs.isEmpty()) {
+      return null;
+    }
 
     resultTsBlock = outputs.removeFirst();
     return checkTsBlockSizeAndGetResult();
