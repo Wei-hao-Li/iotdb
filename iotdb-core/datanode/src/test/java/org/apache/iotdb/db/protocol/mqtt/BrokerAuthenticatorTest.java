@@ -15,12 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.iotdb.db.protocol.mqtt;
 
-package org.apache.iotdb.mqtt;
+import org.apache.iotdb.db.exception.StorageEngineException;
+import org.apache.iotdb.db.utils.EnvironmentUtils;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+
 public class BrokerAuthenticatorTest {
+
+  @Before
+  public void before() {
+    EnvironmentUtils.envSetUp();
+  }
+
+  @After
+  public void after() throws IOException, StorageEngineException {
+    EnvironmentUtils.cleanEnv();
+  }
 
   @Test
   public void checkValid() {

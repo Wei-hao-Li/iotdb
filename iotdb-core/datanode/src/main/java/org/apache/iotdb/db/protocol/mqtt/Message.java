@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.iotdb.mqtt;
+package org.apache.iotdb.db.protocol.mqtt;
 
 /** Generic parsing of messages */
 public class Message {

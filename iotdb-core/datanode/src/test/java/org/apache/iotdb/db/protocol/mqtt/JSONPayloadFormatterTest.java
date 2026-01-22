@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.iotdb.mqtt;
+package org.apache.iotdb.db.protocol.mqtt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
