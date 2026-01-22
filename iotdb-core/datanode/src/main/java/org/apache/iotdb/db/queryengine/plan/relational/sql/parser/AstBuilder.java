@@ -193,7 +193,6 @@ import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowCurrentUser;
 import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowDB;
 import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowDataNodes;
 import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowDevice;
-import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowExternalService;
 import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowFunctions;
 import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowIndex;
 import org.apache.iotdb.db.queryengine.plan.relational.sql.ast.ShowLoadedModels;
@@ -304,7 +303,6 @@ import static java.lang.Long.parseLong;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
-import static org.apache.iotdb.commons.schema.column.ColumnHeaderConstant.DATA_NODE_ID_TABLE_MODEL;
 import static org.apache.iotdb.commons.schema.table.TsTable.TIME_COLUMN_NAME;
 import static org.apache.iotdb.commons.schema.table.column.TsTableColumnCategory.ATTRIBUTE;
 import static org.apache.iotdb.commons.schema.table.column.TsTableColumnCategory.FIELD;
@@ -313,6 +311,7 @@ import static org.apache.iotdb.commons.schema.table.column.TsTableColumnCategory
 import static org.apache.iotdb.commons.udf.builtin.relational.TableBuiltinScalarFunction.DATE_BIN;
 import static org.apache.iotdb.db.queryengine.plan.execution.config.TableConfigTaskVisitor.DATABASE_NOT_SPECIFIED;
 import static org.apache.iotdb.db.queryengine.plan.parser.ASTVisitor.SERVICE_MANAGEMENT_NOT_SUPPORTED;
+import static org.apache.iotdb.db.queryengine.plan.parser.ASTVisitor.SHOW_SERVICES_NOT_SUPPORTED;
 import static org.apache.iotdb.db.queryengine.plan.parser.ASTVisitor.parseDateTimeFormat;
 import static org.apache.iotdb.db.queryengine.plan.parser.ASTVisitor.parseIdentifier;
 import static org.apache.iotdb.db.queryengine.plan.parser.ASTVisitor.parseNodeString;
@@ -1112,23 +1111,7 @@ public class AstBuilder extends RelationalSqlBaseVisitor<Node> {
 
   @Override
   public Node visitShowServiceStatement(RelationalSqlParser.ShowServiceStatementContext ctx) {
-    // show services on all DNs
-    Optional<Expression> where = Optional.empty();
-    if (ctx.ON() != null) {
-      where =
-          Optional.of(
-              new ComparisonExpression(
-                  ComparisonExpression.Operator.EQUAL,
-                  new Identifier(DATA_NODE_ID_TABLE_MODEL),
-                  new LongLiteral(ctx.targetDataNodeId.getText())));
-    }
-    return new ShowExternalService(
-        getLocation(ctx),
-        InformationSchema.SERVICES,
-        where,
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty());
+    throw new UnsupportedOperationException(SHOW_SERVICES_NOT_SUPPORTED);
   }
 
   @Override

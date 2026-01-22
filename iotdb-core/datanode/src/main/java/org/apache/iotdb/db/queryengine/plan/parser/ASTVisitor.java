@@ -187,7 +187,6 @@ import org.apache.iotdb.db.queryengine.plan.statement.metadata.ShowTimeSeriesSta
 import org.apache.iotdb.db.queryengine.plan.statement.metadata.ShowTriggersStatement;
 import org.apache.iotdb.db.queryengine.plan.statement.metadata.ShowVariablesStatement;
 import org.apache.iotdb.db.queryengine.plan.statement.metadata.UnSetTTLStatement;
-import org.apache.iotdb.db.queryengine.plan.statement.metadata.externalservice.ShowExternalServiceStatement;
 import org.apache.iotdb.db.queryengine.plan.statement.metadata.model.CreateModelStatement;
 import org.apache.iotdb.db.queryengine.plan.statement.metadata.model.CreateTrainingStatement;
 import org.apache.iotdb.db.queryengine.plan.statement.metadata.model.DropModelStatement;
@@ -361,6 +360,8 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
 
   public static final String SERVICE_MANAGEMENT_NOT_SUPPORTED =
       "Service management SQLs are not supported now!";
+
+  public static final String SHOW_SERVICES_NOT_SUPPORTED = "Show services is not supported now!";
 
   public void setZoneId(ZoneId zoneId) {
     this.zoneId = zoneId;
@@ -1119,12 +1120,7 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
 
   @Override
   public Statement visitShowService(IoTDBSqlParser.ShowServiceContext ctx) {
-    // show services on all DNs
-    int dataNodeId = -1;
-    if (ctx.ON() != null) {
-      dataNodeId = Integer.parseInt(ctx.targetDataNodeId.getText());
-    }
-    return new ShowExternalServiceStatement(dataNodeId);
+    throw new UnsupportedOperationException(SHOW_SERVICES_NOT_SUPPORTED);
   }
 
   // Create PipePlugin =====================================================================
